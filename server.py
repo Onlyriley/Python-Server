@@ -12,8 +12,10 @@ DISCONNECT_MESSAGE = '/disconnect'
 
 
 
+server = "45.79.202.153"
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# This doesn't always behave correctly
+# server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 # When a user connects it will ask them for a username
