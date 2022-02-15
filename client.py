@@ -8,7 +8,7 @@ HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = '/disconnect'
-SERVER = "148.137.224.249"
+SERVER = "45.79.202.153"
 
 def define_ip(SERVER):
     print("Enter IP to connect to, or press enter to connect automatically:")
