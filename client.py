@@ -11,14 +11,14 @@ DISCONNECT_MESSAGE = '/disconnect'
 SERVER = "45.79.202.153"
 
 def define_ip(SERVER):
-    print("Enter IP to connect to, or press enter to connect automatically:")
+    print("Press enter to connect or manually enter IP:")
     define_ip_input = input("")
     if define_ip_input.__len__() != 0:
         SERVER = define_ip_input.strip()
     return SERVER
 ADDR = (define_ip(SERVER), PORT)
 
-
+# This handles connecting as well as sending the username
 def connect():
     global client
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -43,13 +43,14 @@ def connect():
 
 def send():
     userinput = input("")
-    msg = userinput
-    message = msg.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' ' * (HEADER - len(send_length))
-    client.send(send_length)
-    client.send(message)
+    if userinput != "":
+        msg = userinput
+        message = msg.encode(FORMAT)
+        msg_length = len(message)
+        send_length = str(msg_length).encode(FORMAT)
+        send_length += b' ' * (HEADER - len(send_length))
+        client.send(send_length)
+        client.send(message)
 
     
 def recieve():
