@@ -9,7 +9,7 @@ HEADER = 64
 PORT = 5050
 # This doesn't always behave correctly depending on the network type
 # SERVER = socket.gethostbyname(socket.gethostname())
-SERVER = "45.79.202.153"
+SERVER = "148.137.224.249"
 
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -19,8 +19,8 @@ LOGFILE_PATH = "logs/"
 
 
 # I'm storing the password in plain text
-# I no one heard that
-ADMIN_PASS = "BlueLot33"
+# I hope no one heard that
+ADMIN_PASS = "0d3f962905dfce0542156c519357b885"
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,46 +32,28 @@ def username_config():
     userkeys = {}
 
 
-# This is the chat thread
-# This makes sure that all clients recieve messages that other clients send
-# There are many redundant variables and I'm not even entirely sure why this works, but it does and it does it well
+# I've removed the udder redundancy in this thread (thank god)
+# Used by handle_inbound to see what messages haven't been sent without using actual rocket science
 def chat_thread():
     global msglist
     global msgcount
-    global feedback
-    global msg_update
     msglist = []
     msgcount = 0
-    feedback = []
-    msg_update = False
-    while True:
-        chat_loop = False
-        if msglist.__len__() != msgcount:
-            while chat_loop == False:
-                msg_update = True
-                if feedback.__len__() > connections:
-                    pass
-                if feedback.__len__() == connections: chat_loop = True
-            msgcount += 1
-            feedback = []
-            msg_update = False
 
-# Currently sends back messages that the server recieves
-# Flaws, it only sends the message back to one client
-
-# Updated to work with chat_thread to send messages to each of the clients and making sure messages are updated (Not working rn) 
+ 
 def handle_inbound(conn, addr):
     connected = True
+    conn_msglist = []
+    for item in msglist:
+        conn_msglist.append(item)
     while connected:
-        handle_loop = False
-        if msg_update == True:
-            try:
-                conn.send(f"{msglist[msgcount]}".encode(FORMAT))
-            except:
-                connected = False
-            feedback.append(True)
-        while handle_loop == False:
-            if feedback.__len__() == 0: handle_loop = True
+        for msg in msglist:
+            if msg not in conn_msglist:
+                conn_msglist.append(msg)
+                try:
+                    conn.send(f"{msg}".encode(FORMAT))
+                except:
+                    connected = False
 
 def msg_recieve(conn):
     try:
@@ -92,7 +74,6 @@ def msg_send(msg, conn):
     except:
         pass
 
-
 def user_command(command, conn, addr):
 
     # This is to recieve from the client in the context of user commands
@@ -110,17 +91,20 @@ def user_command(command, conn, addr):
         # 0 / unassigned = Normal user
         # 1 = Custom group (future)
         # 2 = Admin
-        # 3 = Failed admin login
+        # 3 = Failed admin login (For now this isn't used)
         if status == 2:
             user_groups[addr] = 2
         if status == 3:
             user_groups[addr] = 3
 
     # This prompts user for password
-    # User gets 3 attempts
+    # On correct password, pass to auth_list for validate user as admin
     if command == "/admin":
         msg_send("Please enter the admin password:", conn)
         usrpass = CCR(conn)
+        hashinput = hashlib.md5(usrpass.encode())
+        usrpass = hashinput.hexdigest()
+        # This takes the input and hashes it to match the password so I'm not storing it in plain text
         if usrpass == ADMIN_PASS: 
             auth_list(2, conn, addr)
             msg_send(f"{userkeys[addr]} has been granted administrator privilages", conn)
@@ -281,10 +265,10 @@ def console():
 
 
 
-
+# Starts threads a adds 2 new threads for each connection
 def start():
     server.listen()
-    print("({}) LISTENING ON PORT {}".format(socket.gethostbyname(socket.gethostname()), PORT))
+    print("({}) LISTENING ON PORT {}".format(SERVER, PORT))
     global connections
     global validate_users
     global user_groups
