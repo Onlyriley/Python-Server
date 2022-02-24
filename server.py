@@ -146,7 +146,6 @@ def handle_client(conn, addr):
             msglist.append(f"{userkeys[addr]} has connected")
             connection_auth = True
 
-
     while connected:
         msg_length = msg_recieve(conn)
         if msg_length == DISCONNECT_MESSAGE:
@@ -253,11 +252,16 @@ def console():
                             global validate_users
                             validate_users[user] = 1
 
+        if statement == "/shutdown":
+            global shutdown
+            shutdown = True
 
         if statement == "/help":
             for item in commands:
                 print(item)
             print("Type command then help to recieve details")
+
+        
 
 
         
@@ -272,9 +276,11 @@ def start():
     global connections
     global validate_users
     global user_groups
+    global shutdown
     validate_users = {}
     connections = 0
     user_groups = {}
+    shutdown = False
 
     # Starts the chat thread
     chat_thread_thread = threading.Thread(target=chat_thread)
@@ -300,6 +306,9 @@ def start():
         thread2.start()
         time.sleep(.2)
         print(f"{connections} ACTIVE CONNECTIONS")
+
+        if shutdown == True:
+            quit()
 
 
 
